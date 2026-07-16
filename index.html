@@ -77,16 +77,12 @@
         padding: 40px 40px 34px;
       }
 
-      .hero { text-align: center; margin-bottom: 30px; perspective: 900px; }
-      .icon-wrap { display: inline-block; }
+      .hero { text-align: center; margin-bottom: 30px; }
       .icon {
         width: 168px;
         height: 168px;
         image-rendering: -webkit-optimize-contrast;
         filter: drop-shadow(0 14px 26px rgba(20, 40, 80, 0.32));
-        transform: rotateX(0) rotateY(0);
-        transition: transform 0.12s ease-out;
-        will-change: transform;
       }
       h1 {
         margin: 22px 0 6px;
@@ -161,7 +157,6 @@
       h2 { font-size: 15px; margin: 30px 0 6px; }
       p { margin: 0 0 10px; font-size: 14px; }
       .muted-p { color: var(--muted); }
-      footer { margin-top: 36px; text-align: center; font-size: 12.5px; color: var(--muted); }
       a { color: var(--accent); }
       kbd {
         font: inherit; font-weight: 600; color: var(--text);
@@ -169,9 +164,6 @@
         border-radius: 5px; padding: 0 5px;
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        .icon { transition: none !important; transform: none !important; }
-      }
       @media (max-width: 520px) {
         .panel { padding: 30px 22px 26px; border-radius: 18px; }
         .icon { width: 140px; height: 140px; }
@@ -181,9 +173,7 @@
   <body>
     <div class="panel">
       <div class="hero">
-        <span class="icon-wrap">
-          <img class="icon" src="icon.png" alt="IAR Dashboard app icon" width="168" height="168" />
-        </span>
+        <img class="icon" src="icon.png" alt="IAR Dashboard app icon" width="168" height="168" />
         <h1>IAR Dashboard</h1>
         <p class="tag">Visualize your school’s IAR assessment data — right on your own computer.</p>
       </div>
@@ -224,28 +214,9 @@
         The app updates itself. Once it’s installed you won’t need this page again — it’ll offer new
         versions as they’re released.
       </p>
-
-      <footer>
-        Questions or a problem? Email
-        <a href="mailto:scott@sound-programming.com">scott@sound-programming.com</a>.
-      </footer>
     </div>
 
     <script>
-      // Icon leans toward the cursor — a light 3D parallax. Skipped when the visitor prefers reduced
-      // motion, and on touch (no hover), where there's no pointer to follow.
-      const icon = document.querySelector('.icon')
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
-      const fine = window.matchMedia('(hover: hover) and (pointer: fine)')
-      if (icon && fine.matches && !reduce.matches) {
-        const MAX = 16
-        window.addEventListener('mousemove', (e) => {
-          const dx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)
-          const dy = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)
-          icon.style.transform = `rotateY(${dx * MAX}deg) rotateX(${-dy * MAX}deg)`
-        })
-      }
-
       // Label which version the buttons will fetch. "latest" excludes pre-releases.
       fetch('https://api.github.com/repos/sndprg-sp/iar-dashboard-releases/releases/latest')
         .then((r) => (r.ok ? r.json() : null))
