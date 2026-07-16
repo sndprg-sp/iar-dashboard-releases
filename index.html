@@ -4,102 +4,137 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>IAR Dashboard</title>
-    <meta name="description" content="Read your school's IAR assessment data on your own computer." />
+    <meta name="description" content="Visualize your school's IAR assessment data on your own computer." />
     <link rel="icon" href="icon.png" />
     <style>
       :root {
         color-scheme: light dark;
-        --bg: #f4f6f9;
-        --bg-glow: rgba(31, 95, 168, 0.14);
-        --surface: #ffffff;
+        /* Page backdrop — a colourful wash the panel sits on. */
+        --page-a: #dbe7fb;
+        --page-b: #ece3fb;
+        --page-c: #d8f3ee;
+        --panel: #ffffff;
         --text: #14171c;
         --muted: #5c636e;
-        --border: #e3e6ea;
+        --border: #e6e9ee;
         --accent: #1f5fa8;
+        --accent-2: #7b52e1;
         --accent-text: #ffffff;
         --ok: #2f8a4e;
-        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(20, 30, 50, 0.08);
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 18px 50px rgba(30, 40, 80, 0.14);
+        --btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 22px rgba(30, 40, 80, 0.1);
+        --chip-green-bg: #e7f6ec; --chip-green-tx: #1f7a43;
+        --chip-blue-bg: #e5eefb; --chip-blue-tx: #1f5fa8;
+        --chip-violet-bg: #efe8fc; --chip-violet-tx: #6a3fd0;
+        --chip-amber-bg: #fbefd9; --chip-amber-tx: #9a6512;
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #101216;
-          --bg-glow: rgba(90, 155, 236, 0.16);
-          --surface: #191c21;
+          --page-a: #121a2b;
+          --page-b: #1a1330;
+          --page-c: #0f2622;
+          --panel: #191c21;
           --text: #eef1f5;
           --muted: #99a2ad;
           --border: #2b3037;
           --accent: #5a9bec;
+          --accent-2: #a888f5;
           --accent-text: #0b1017;
           --ok: #5bcf85;
-          --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 12px 34px rgba(0, 0, 0, 0.45);
+          --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 22px 60px rgba(0, 0, 0, 0.55);
+          --btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 26px rgba(0, 0, 0, 0.4);
+          --chip-green-bg: #14301f; --chip-green-tx: #6cd493;
+          --chip-blue-bg: #14243c; --chip-blue-tx: #7cb0f2;
+          --chip-violet-bg: #241a3d; --chip-violet-tx: #b79bf7;
+          --chip-amber-bg: #33260f; --chip-amber-tx: #e0ab5a;
         }
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; }
       body {
         background:
-          radial-gradient(60% 45% at 50% -5%, var(--bg-glow), transparent 70%),
-          var(--bg);
+          radial-gradient(70% 55% at 12% 0%, var(--page-a), transparent 60%),
+          radial-gradient(65% 55% at 100% 8%, var(--page-b), transparent 58%),
+          radial-gradient(80% 70% at 50% 100%, var(--page-c), transparent 65%),
+          var(--page-a);
         color: var(--text);
         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
         min-height: 100vh;
         display: flex;
         justify-content: center;
-        padding: 56px 20px 72px;
+        align-items: flex-start;
+        padding: 52px 20px 72px;
         -webkit-font-smoothing: antialiased;
       }
-      main { width: 100%; max-width: 600px; }
 
-      .hero { text-align: center; margin-bottom: 34px; }
+      .panel {
+        width: 100%;
+        max-width: 600px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 40px 40px 34px;
+      }
+
+      .hero { text-align: center; margin-bottom: 30px; perspective: 900px; }
+      .icon-wrap { display: inline-block; }
       .icon {
-        width: 132px;
-        height: 132px;
+        width: 168px;
+        height: 168px;
         image-rendering: -webkit-optimize-contrast;
-        filter: drop-shadow(0 10px 22px rgba(20, 40, 80, 0.28));
+        filter: drop-shadow(0 14px 26px rgba(20, 40, 80, 0.32));
+        transform: rotateX(0) rotateY(0);
+        transition: transform 0.12s ease-out;
+        will-change: transform;
       }
       h1 {
-        margin: 20px 0 6px;
-        font-size: 34px;
+        margin: 22px 0 6px;
+        font-size: 35px;
         letter-spacing: -0.025em;
-        font-weight: 700;
+        font-weight: 800;
+        background: linear-gradient(105deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
       .tag { margin: 0; color: var(--muted); font-size: 16.5px; }
 
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-        margin: 20px 0 30px;
-      }
+      .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 22px 0 30px; }
       .chip {
         font-size: 12.5px;
-        color: var(--muted);
-        background: var(--surface);
-        border: 1px solid var(--border);
+        font-weight: 600;
         border-radius: 999px;
-        padding: 5px 12px;
+        padding: 5px 13px;
+        border: 1px solid transparent;
         white-space: nowrap;
       }
-      .chip b { color: var(--text); font-weight: 600; }
+      .chip.green { background: var(--chip-green-bg); color: var(--chip-green-tx); }
+      .chip.blue { background: var(--chip-blue-bg); color: var(--chip-blue-tx); }
+      .chip.violet { background: var(--chip-violet-bg); color: var(--chip-violet-tx); }
+      .chip.amber { background: var(--chip-amber-bg); color: var(--chip-amber-tx); }
 
       .dl { display: flex; flex-wrap: wrap; gap: 12px; }
       .btn {
-        flex: 1 1 210px;
+        flex: 1 1 205px;
         display: flex;
         align-items: center;
         gap: 12px;
         padding: 15px 18px;
-        border-radius: 12px;
+        border-radius: 13px;
         border: 1px solid var(--border);
         text-decoration: none;
         color: var(--text);
-        background: var(--surface);
-        box-shadow: var(--shadow);
+        background: var(--panel);
+        box-shadow: var(--btn-shadow);
         transition: transform 0.12s ease, box-shadow 0.12s ease;
       }
-      .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(20, 30, 50, 0.14), 0 16px 40px rgba(20, 30, 50, 0.12); }
-      .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+      .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(20, 30, 50, 0.16), 0 20px 44px rgba(20, 30, 50, 0.14); }
+      .btn.primary {
+        background: linear-gradient(120deg, var(--accent), var(--accent-2));
+        border-color: transparent;
+        color: var(--accent-text);
+      }
       .btn svg { width: 26px; height: 26px; flex: none; fill: currentColor; }
       .btn .label { display: flex; flex-direction: column; line-height: 1.25; }
       .btn .label b { font-size: 15px; }
@@ -108,12 +143,12 @@
       .ver { text-align: center; font-size: 13px; color: var(--muted); margin: 16px 0 0; min-height: 1.2em; }
 
       .card {
-        margin-top: 34px;
+        margin-top: 32px;
         padding: 16px 18px;
-        background: var(--surface);
+        background: linear-gradient(120deg, var(--chip-green-bg), transparent 85%);
         border: 1px solid var(--border);
+        border-left: 3px solid var(--ok);
         border-radius: 12px;
-        box-shadow: var(--shadow);
         font-size: 13.5px;
         color: var(--muted);
         display: flex;
@@ -123,35 +158,41 @@
       .card svg { width: 20px; height: 20px; flex: none; fill: var(--ok); margin-top: 1px; }
       .card b { color: var(--text); }
 
-      h2 { font-size: 15px; margin: 32px 0 6px; }
+      h2 { font-size: 15px; margin: 30px 0 6px; }
       p { margin: 0 0 10px; font-size: 14px; }
       .muted-p { color: var(--muted); }
-      footer { margin-top: 40px; text-align: center; font-size: 12.5px; color: var(--muted); }
+      footer { margin-top: 36px; text-align: center; font-size: 12.5px; color: var(--muted); }
       a { color: var(--accent); }
       kbd {
-        font: inherit;
-        font-weight: 600;
-        color: var(--text);
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 5px;
-        padding: 0 5px;
+        font: inherit; font-weight: 600; color: var(--text);
+        background: var(--chip-blue-bg); border: 1px solid var(--border);
+        border-radius: 5px; padding: 0 5px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .icon { transition: none !important; transform: none !important; }
+      }
+      @media (max-width: 520px) {
+        .panel { padding: 30px 22px 26px; border-radius: 18px; }
+        .icon { width: 140px; height: 140px; }
       }
     </style>
   </head>
   <body>
-    <main>
+    <div class="panel">
       <div class="hero">
-        <img class="icon" src="icon.png" alt="IAR Dashboard app icon" width="132" height="132" />
+        <span class="icon-wrap">
+          <img class="icon" src="icon.png" alt="IAR Dashboard app icon" width="168" height="168" />
+        </span>
         <h1>IAR Dashboard</h1>
-        <p class="tag">Read your school’s IAR assessment data — on your own computer.</p>
+        <p class="tag">Visualize your school’s IAR assessment data — right on your own computer.</p>
       </div>
 
       <div class="chips">
-        <span class="chip"><b>Free</b></span>
-        <span class="chip">Runs on <b>your computer</b></span>
-        <span class="chip"><b>Auto-updating</b></span>
-        <span class="chip">No account</span>
+        <span class="chip green">Free</span>
+        <span class="chip blue">Runs on your computer</span>
+        <span class="chip violet">Auto-updating</span>
+        <span class="chip amber">No account</span>
       </div>
 
       <div class="dl">
@@ -168,7 +209,7 @@
 
       <div class="card">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4-6.3 6.3z"/></svg>
-        <div><b>Your data never leaves this computer.</b> Student files you load are read and stored only
+        <div><b>Your data never leaves your computer.</b> Student files you load are read and stored only
         on your own machine. Nothing is uploaded, and there’s no account to create.</div>
       </div>
 
@@ -188,11 +229,24 @@
         Questions or a problem? Email
         <a href="mailto:scott@sound-programming.com">scott@sound-programming.com</a>.
       </footer>
-    </main>
+    </div>
 
     <script>
-      // The buttons work without this; it only labels which version they'll fetch. "latest" excludes
-      // pre-releases, so dev builds never appear here.
+      // Icon leans toward the cursor — a light 3D parallax. Skipped when the visitor prefers reduced
+      // motion, and on touch (no hover), where there's no pointer to follow.
+      const icon = document.querySelector('.icon')
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
+      const fine = window.matchMedia('(hover: hover) and (pointer: fine)')
+      if (icon && fine.matches && !reduce.matches) {
+        const MAX = 16
+        window.addEventListener('mousemove', (e) => {
+          const dx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)
+          const dy = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)
+          icon.style.transform = `rotateY(${dx * MAX}deg) rotateX(${-dy * MAX}deg)`
+        })
+      }
+
+      // Label which version the buttons will fetch. "latest" excludes pre-releases.
       fetch('https://api.github.com/repos/sndprg-sp/iar-dashboard-releases/releases/latest')
         .then((r) => (r.ok ? r.json() : null))
         .then((release) => {
