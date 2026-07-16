@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IAR Dashboard</title>
+    <meta name="description" content="Read your school's IAR assessment data on your own computer." />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --surface: #f6f7f9;
+        --text: #15171a;
+        --muted: #5c636e;
+        --border: #e3e6ea;
+        --accent: #1f5fa8;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #15171a;
+          --surface: #1d2024;
+          --text: #eef1f5;
+          --muted: #9aa3ae;
+          --border: #2c3138;
+          --accent: #5a9bec;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 48px 20px 64px;
+      }
+      main { width: 100%; max-width: 620px; }
+      h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+      .tag { margin: 0 0 28px; color: var(--muted); }
+      .ver { font-size: 13px; color: var(--muted); margin: 0 0 22px; }
+      .dl { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+      .btn {
+        flex: 1 1 220px;
+        display: block;
+        padding: 14px 18px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        text-decoration: none;
+        color: var(--text);
+        background: var(--surface);
+      }
+      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .btn b { display: block; font-size: 15px; }
+      .btn span { font-size: 12.5px; opacity: 0.8; }
+      .note {
+        margin-top: 28px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      .note b { color: var(--text); }
+      h2 { font-size: 15px; margin: 30px 0 6px; }
+      p { margin: 0 0 10px; font-size: 14px; }
+      footer { margin-top: 36px; font-size: 12.5px; color: var(--muted); }
+      a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>IAR Dashboard</h1>
+      <p class="tag">Read your school’s IAR assessment data — on your own computer.</p>
+
+      <div class="dl">
+        <a class="btn primary" href="https://github.com/sndprg-sp/iar-dashboard-releases/releases/latest/download/IAR-Dashboard-mac.dmg">
+          <b>Download for Mac</b>
+          <span>Apple silicon · macOS 12 or later</span>
+        </a>
+        <a class="btn" href="https://github.com/sndprg-sp/iar-dashboard-releases/releases/latest/download/IAR-Dashboard-windows.exe">
+          <b>Download for Windows</b>
+          <span>Windows 10 or later</span>
+        </a>
+      </div>
+      <p class="ver" id="ver">&nbsp;</p>
+
+      <div class="note">
+        <b>Your data never leaves this computer.</b> Student files you load are read and stored only
+        on your own machine. Nothing is uploaded, and there is no account to create.
+      </div>
+
+      <h2>Installing on Windows</h2>
+      <p>
+        Windows may warn that the publisher is unknown. Choose <b>More info → Run anyway</b>. We’re
+        working on removing that warning.
+      </p>
+
+      <h2>Updates</h2>
+      <p>
+        The app updates itself. Once it’s installed you won’t need this page again — it’ll offer new
+        versions as they’re released.
+      </p>
+
+      <footer>
+        Need help, or found a problem? Email
+        <a href="mailto:scott@sound-programming.com">scott@sound-programming.com</a>.
+      </footer>
+    </main>
+
+    <script>
+      // The buttons work without this; it only labels which version they'll get. "latest" excludes
+      // pre-releases, so dev builds never show up here.
+      fetch('https://api.github.com/repos/sndprg-sp/iar-dashboard-releases/releases/latest')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((release) => {
+          if (!release || !release.tag_name) return
+          const when = release.published_at
+            ? new Date(release.published_at).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'long', day: 'numeric'
+              })
+            : null
+          document.getElementById('ver').textContent =
+            'Version ' + release.tag_name.replace(/^v/, '') + (when ? ' · released ' + when : '')
+        })
+        .catch(() => {})
+    </script>
+  </body>
+</html>
