@@ -5,113 +5,194 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>IAR Dashboard</title>
     <meta name="description" content="Read your school's IAR assessment data on your own computer." />
+    <link rel="icon" href="icon.png" />
     <style>
       :root {
         color-scheme: light dark;
-        --bg: #ffffff;
-        --surface: #f6f7f9;
-        --text: #15171a;
+        --bg: #f4f6f9;
+        --bg-glow: rgba(31, 95, 168, 0.14);
+        --surface: #ffffff;
+        --text: #14171c;
         --muted: #5c636e;
         --border: #e3e6ea;
         --accent: #1f5fa8;
+        --accent-text: #ffffff;
+        --ok: #2f8a4e;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 28px rgba(20, 30, 50, 0.08);
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #15171a;
-          --surface: #1d2024;
+          --bg: #101216;
+          --bg-glow: rgba(90, 155, 236, 0.16);
+          --surface: #191c21;
           --text: #eef1f5;
-          --muted: #9aa3ae;
-          --border: #2c3138;
+          --muted: #99a2ad;
+          --border: #2b3037;
           --accent: #5a9bec;
+          --accent-text: #0b1017;
+          --ok: #5bcf85;
+          --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 12px 34px rgba(0, 0, 0, 0.45);
         }
       }
       * { box-sizing: border-box; }
+      html, body { margin: 0; }
       body {
-        margin: 0;
-        background: var(--bg);
+        background:
+          radial-gradient(60% 45% at 50% -5%, var(--bg-glow), transparent 70%),
+          var(--bg);
         color: var(--text);
         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        min-height: 100vh;
         display: flex;
         justify-content: center;
-        padding: 48px 20px 64px;
+        padding: 56px 20px 72px;
+        -webkit-font-smoothing: antialiased;
       }
-      main { width: 100%; max-width: 620px; }
-      h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
-      .tag { margin: 0 0 28px; color: var(--muted); }
-      .ver { font-size: 13px; color: var(--muted); margin: 0 0 22px; }
-      .dl { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+      main { width: 100%; max-width: 600px; }
+
+      .hero { text-align: center; margin-bottom: 34px; }
+      .icon {
+        width: 132px;
+        height: 132px;
+        image-rendering: -webkit-optimize-contrast;
+        filter: drop-shadow(0 10px 22px rgba(20, 40, 80, 0.28));
+      }
+      h1 {
+        margin: 20px 0 6px;
+        font-size: 34px;
+        letter-spacing: -0.025em;
+        font-weight: 700;
+      }
+      .tag { margin: 0; color: var(--muted); font-size: 16.5px; }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin: 20px 0 30px;
+      }
+      .chip {
+        font-size: 12.5px;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 5px 12px;
+        white-space: nowrap;
+      }
+      .chip b { color: var(--text); font-weight: 600; }
+
+      .dl { display: flex; flex-wrap: wrap; gap: 12px; }
       .btn {
-        flex: 1 1 220px;
-        display: block;
-        padding: 14px 18px;
-        border-radius: 10px;
+        flex: 1 1 210px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 18px;
+        border-radius: 12px;
         border: 1px solid var(--border);
         text-decoration: none;
         color: var(--text);
         background: var(--surface);
+        box-shadow: var(--shadow);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
       }
-      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-      .btn b { display: block; font-size: 15px; }
-      .btn span { font-size: 12.5px; opacity: 0.8; }
-      .note {
-        margin-top: 28px;
-        padding: 14px 16px;
+      .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(20, 30, 50, 0.14), 0 16px 40px rgba(20, 30, 50, 0.12); }
+      .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+      .btn svg { width: 26px; height: 26px; flex: none; fill: currentColor; }
+      .btn .label { display: flex; flex-direction: column; line-height: 1.25; }
+      .btn .label b { font-size: 15px; }
+      .btn .label span { font-size: 12px; opacity: 0.82; }
+
+      .ver { text-align: center; font-size: 13px; color: var(--muted); margin: 16px 0 0; min-height: 1.2em; }
+
+      .card {
+        margin-top: 34px;
+        padding: 16px 18px;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
         font-size: 13.5px;
         color: var(--muted);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
       }
-      .note b { color: var(--text); }
-      h2 { font-size: 15px; margin: 30px 0 6px; }
+      .card svg { width: 20px; height: 20px; flex: none; fill: var(--ok); margin-top: 1px; }
+      .card b { color: var(--text); }
+
+      h2 { font-size: 15px; margin: 32px 0 6px; }
       p { margin: 0 0 10px; font-size: 14px; }
-      footer { margin-top: 36px; font-size: 12.5px; color: var(--muted); }
+      .muted-p { color: var(--muted); }
+      footer { margin-top: 40px; text-align: center; font-size: 12.5px; color: var(--muted); }
       a { color: var(--accent); }
+      kbd {
+        font: inherit;
+        font-weight: 600;
+        color: var(--text);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 0 5px;
+      }
     </style>
   </head>
   <body>
     <main>
-      <h1>IAR Dashboard</h1>
-      <p class="tag">Read your school’s IAR assessment data — on your own computer.</p>
+      <div class="hero">
+        <img class="icon" src="icon.png" alt="IAR Dashboard app icon" width="132" height="132" />
+        <h1>IAR Dashboard</h1>
+        <p class="tag">Read your school’s IAR assessment data — on your own computer.</p>
+      </div>
+
+      <div class="chips">
+        <span class="chip"><b>Free</b></span>
+        <span class="chip">Runs on <b>your computer</b></span>
+        <span class="chip"><b>Auto-updating</b></span>
+        <span class="chip">No account</span>
+      </div>
 
       <div class="dl">
         <a class="btn primary" href="https://github.com/sndprg-sp/iar-dashboard-releases/releases/latest/download/IAR-Dashboard-mac.dmg">
-          <b>Download for Mac</b>
-          <span>Apple silicon · macOS 12 or later</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.76.85-2 1.5-3.02 1.42-.12-1.08.44-2.24 1.1-2.96.76-.82 2.06-1.42 3.04-1.44zM20.9 17.1c-.55 1.27-.82 1.83-1.53 2.95-.99 1.57-2.38 3.53-4.1 3.54-1.52.02-1.91-.99-3.99-.98-2.08.01-2.51 1-4.04.97-1.71-.02-3.02-1.78-4.01-3.35-2.77-4.37-3.06-9.5-1.35-12.22 1.21-1.94 3.12-3.06 4.92-3.06 1.83 0 2.98 1.01 4.49 1.01 1.47 0 2.36-1.01 4.48-1.01 1.6 0 3.3.87 4.51 2.37-3.96 2.17-3.32 7.83.16 9.76z"/></svg>
+          <span class="label"><b>Download for Mac</b><span>Apple silicon · macOS 12+</span></span>
         </a>
         <a class="btn" href="https://github.com/sndprg-sp/iar-dashboard-releases/releases/latest/download/IAR-Dashboard-windows.exe">
-          <b>Download for Windows</b>
-          <span>Windows 10 or later</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.1 10.4 4v7.3H3V5.1zM10.4 12.7V20L3 18.9v-6.2h7.4zM11.3 3.85 21 2.5v8.8h-9.7V3.85zM21 12.7v8.8l-9.7-1.35v-7.45H21z"/></svg>
+          <span class="label"><b>Download for Windows</b><span>Windows 10+</span></span>
         </a>
       </div>
       <p class="ver" id="ver">&nbsp;</p>
 
-      <div class="note">
-        <b>Your data never leaves this computer.</b> Student files you load are read and stored only
-        on your own machine. Nothing is uploaded, and there is no account to create.
+      <div class="card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4-6.3 6.3z"/></svg>
+        <div><b>Your data never leaves this computer.</b> Student files you load are read and stored only
+        on your own machine. Nothing is uploaded, and there’s no account to create.</div>
       </div>
 
       <h2>Installing on Windows</h2>
-      <p>
-        Windows may warn that the publisher is unknown. Choose <b>More info → Run anyway</b>. We’re
-        working on removing that warning.
+      <p class="muted-p">
+        Windows may warn that the publisher is unknown. Choose <kbd>More info</kbd> →
+        <kbd>Run anyway</kbd>. We’re working on removing that warning.
       </p>
 
       <h2>Updates</h2>
-      <p>
+      <p class="muted-p">
         The app updates itself. Once it’s installed you won’t need this page again — it’ll offer new
         versions as they’re released.
       </p>
 
       <footer>
-        Need help, or found a problem? Email
+        Questions or a problem? Email
         <a href="mailto:scott@sound-programming.com">scott@sound-programming.com</a>.
       </footer>
     </main>
 
     <script>
-      // The buttons work without this; it only labels which version they'll get. "latest" excludes
-      // pre-releases, so dev builds never show up here.
+      // The buttons work without this; it only labels which version they'll fetch. "latest" excludes
+      // pre-releases, so dev builds never appear here.
       fetch('https://api.github.com/repos/sndprg-sp/iar-dashboard-releases/releases/latest')
         .then((r) => (r.ok ? r.json() : null))
         .then((release) => {
