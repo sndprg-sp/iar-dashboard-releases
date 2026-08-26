@@ -164,6 +164,29 @@
         border-radius: 5px; padding: 0 5px;
       }
 
+      /* Earlier versions — deliberately quiet, and collapsed: it's an escape hatch, not a choice
+         we want people weighing up against the current version. */
+      .prev { margin-top: 26px; border-top: 1px solid var(--border); padding-top: 16px; }
+      .prev[hidden] { display: none; }
+      .prev summary {
+        cursor: pointer; font-size: 13px; color: var(--muted); list-style: none;
+        display: flex; align-items: center; gap: 6px;
+      }
+      .prev summary::-webkit-details-marker { display: none; }
+      .prev summary::before {
+        content: '▸'; font-size: 11px; transition: transform 0.15s ease; display: inline-block;
+      }
+      .prev[open] summary::before { transform: rotate(90deg); }
+      .prev summary:hover { color: var(--text); }
+      .prev-note { font-size: 12.5px; color: var(--muted); margin: 12px 0 14px; line-height: 1.55; }
+      .prev-row {
+        display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px;
+        padding: 9px 0; border-top: 1px solid var(--border); font-size: 13px;
+      }
+      .prev-ver { font-weight: 600; min-width: 4.5em; }
+      .prev-date { color: var(--muted); font-size: 12px; flex: 1; }
+      .prev-row a { font-size: 12.5px; }
+
       @media (max-width: 520px) {
         .panel { padding: 30px 22px 26px; border-radius: 18px; }
         .icon { width: 140px; height: 140px; }
@@ -214,23 +237,71 @@
         The app updates itself. Once it’s installed you won’t need this page again — it’ll offer new
         versions as they’re released.
       </p>
+
+      <details class="prev" id="prev" hidden>
+        <summary>Looking for an earlier version?</summary>
+        <p class="prev-note">
+          If a new version causes trouble, you can go back to an earlier one. The app will still
+          offer to update you again the next time it starts — choose <strong>Later</strong> if you
+          want to stay put.
+        </p>
+        <div id="prev-list"></div>
+      </details>
     </div>
 
     <script>
-      // Label which version the buttons will fetch. "latest" excludes pre-releases.
-      fetch('https://api.github.com/repos/sndprg-sp/iar-dashboard-releases/releases/latest')
-        .then((r) => (r.ok ? r.json() : null))
-        .then((release) => {
-          if (!release || !release.tag_name) return
-          const when = release.published_at
-            ? new Date(release.published_at).toLocaleDateString(undefined, {
-                year: 'numeric', month: 'long', day: 'numeric'
-              })
-            : null
-          document.getElementById('ver').textContent =
-            'Version ' + release.tag_name.replace(/^v/, '') + (when ? ' · released ' + when : '')
+      // One request serves both jobs: label the version the buttons fetch, and list the couple of
+      // releases before it. Pre-releases (dev builds) are opt-in inside the app, so they're left out.
+      var REPO = 'https://github.com/sndprg-sp/iar-dashboard-releases'
+      var PREVIOUS_SHOWN = 2
+
+      function humanDate(iso) {
+        if (!iso) return null
+        return new Date(iso).toLocaleDateString(undefined, {
+          year: 'numeric', month: 'long', day: 'numeric'
         })
-        .catch(() => {})
+      }
+
+      fetch('https://api.github.com/repos/sndprg-sp/iar-dashboard-releases/releases?per_page=15')
+        .then(function (r) { return r.ok ? r.json() : null })
+        .then(function (all) {
+          if (!Array.isArray(all)) return
+          var stable = all.filter(function (r) { return !r.prerelease && !r.draft && r.tag_name })
+          if (stable.length === 0) return
+
+          var when = humanDate(stable[0].published_at)
+          document.getElementById('ver').textContent =
+            'Version ' + stable[0].tag_name.replace(/^v/, '') + (when ? ' · released ' + when : '')
+
+          var earlier = stable.slice(1, 1 + PREVIOUS_SHOWN)
+          if (earlier.length === 0) return
+          var list = document.getElementById('prev-list')
+          earlier.forEach(function (release) {
+            var tag = release.tag_name
+            var row = document.createElement('div')
+            row.className = 'prev-row'
+            var version = document.createElement('span')
+            version.className = 'prev-ver'
+            version.textContent = tag.replace(/^v/, '')
+            var date = document.createElement('span')
+            date.className = 'prev-date'
+            date.textContent = humanDate(release.published_at) || ''
+            row.appendChild(version)
+            row.appendChild(date)
+            // Every release carries these version-less aliases alongside its numbered artefacts.
+            ;[['Mac', 'IAR-Dashboard-mac.dmg'], ['Windows', 'IAR-Dashboard-windows.exe']].forEach(
+              function (pair) {
+                var link = document.createElement('a')
+                link.href = REPO + '/releases/download/' + encodeURIComponent(tag) + '/' + pair[1]
+                link.textContent = pair[0]
+                row.appendChild(link)
+              }
+            )
+            list.appendChild(row)
+          })
+          document.getElementById('prev').hidden = false
+        })
+        .catch(function () {})
     </script>
   </body>
 </html>
